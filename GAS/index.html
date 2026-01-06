@@ -132,6 +132,123 @@ transition: opacity 3s ease-out;
       flex-direction: column;
       gap: 2rem;
     }
+    /* ===== ステップインジケーター ===== */
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      padding: 1.25rem 1rem;
+      background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+    }
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-md);
+      transition: all var(--transition) ease;
+      cursor: default;
+      min-width: 120px;
+      position: relative;
+    }
+    .step-item.clickable {
+      cursor: pointer;
+    }
+    .step-item.clickable:hover {
+      background: rgba(var(--primary-color-rgb), 0.06);
+    }
+    .step-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      background: var(--bg-surface);
+      border: 2px solid var(--border-color-strong);
+      color: var(--text-secondary);
+      transition: all var(--transition) ease;
+    }
+    .step-item.active .step-number {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: var(--text-on-primary);
+      box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.35);
+    }
+    .step-item.completed .step-number {
+      background: var(--success-color);
+      border-color: var(--success-color);
+      color: var(--text-on-primary);
+    }
+    .step-item.completed .step-number::after {
+      content: '✓';
+      font-size: 1.1rem;
+    }
+    .step-item.completed .step-number span {
+      display: none;
+    }
+    .step-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: center;
+      line-height: 1.3;
+      max-width: 100px;
+    }
+    .step-item.active .step-label {
+      color: var(--primary-color);
+    }
+    .step-item.completed .step-label {
+      color: var(--success-color);
+    }
+    .step-connector {
+      width: 50px;
+      height: 2px;
+      background: var(--border-color-strong);
+      position: relative;
+      margin: 0 -0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .step-connector.completed {
+      background: var(--success-color);
+    }
+    .step-connector::before {
+      content: '';
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 5px solid transparent;
+      border-left-color: var(--border-color-strong);
+    }
+    .step-connector.completed::before {
+      border-left-color: var(--success-color);
+    }
+    @media (max-width: 640px) {
+      .step-indicator {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .step-item {
+        min-width: 80px;
+        padding: 0.5rem;
+      }
+      .step-connector {
+        width: 30px;
+      }
+      .step-label {
+        font-size: 0.7rem;
+        max-width: 70px;
+      }
+    }
     .card {
       background: rgba(255, 255, 255, 0.92);
       border-radius: var(--radius-lg);
@@ -1104,19 +1221,48 @@ transition: opacity 3s ease-out;
     <div id="left-pane" style="display: flex; flex-direction: column; height: 100%;
 overflow-y: auto; position: relative;"><div id="closeSettingsBtn" class="panel-close-btn" title="プレビューを最大化">×</div>
       <div class="container">
+        <!-- ===== ステップインジケーター ===== -->
+        <div class="step-indicator" id="stepIndicator">
+          <div class="step-item active clickable" data-step="1" id="step1">
+            <div class="step-number"><span>1</span></div>
+            <div class="step-label">Geminiで<br>データ作成</div>
+          </div>
+          <div class="step-connector" id="connector1"></div>
+          <div class="step-item clickable" data-step="2" id="step2">
+            <div class="step-number"><span>2</span></div>
+            <div class="step-label">データを<br>貼り付け</div>
+          </div>
+          <div class="step-connector" id="connector2"></div>
+          <div class="step-item" data-step="3" id="step3">
+            <div class="step-number"><span>3</span></div>
+            <div class="step-label">スライド<br>生成！</div>
+          </div>
+        </div>
+
         <div class="main-grid">
           <div class="left-column">
-            <div class="card">
-              <h2 class="card-header">Geminiでスライド構成データの作成</h2>
+            <div class="card" id="geminiCard">
+              <h2 class="card-header">
+                <span style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="background: var(--primary-color); color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">1</span>
+                  Geminiでスライド構成データの作成
+                </span>
+              </h2>
               <div class="card-body">
-                <a id="geminiGemButton" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-                  Geminiを開く
+                <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                  下のボタンからGeminiを開き、作りたいスライドの内容を伝えてください。生成されたデータをコピーします。
+                </p>
+                <a id="geminiGemButton" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1.1rem;">✨</span> Geminiを開く
                 </a>
-                </div>
+              </div>
             </div>
-            <div class="card editor-section">
+            <div class="card editor-section" id="inputCard">
               <h2 class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-  <span>スライド構成データの入力</span>
+  <span style="display: flex; align-items: center; gap: 0.5rem;">
+    <span style="background: var(--primary-color); color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">2</span>
+    スライド構成データの入力
+  </span>
   <span id="historyRestoreBtn" title="スライドIDから設定とデータを読み込み" style="cursor: pointer; font-size: 1.2rem; opacity: 0.7; transition: opacity 0.2s;">
     🕒
   </span>
@@ -1140,6 +1286,7 @@ overflow-y: auto; position: relative;"><div id="closeSettingsBtn" class="panel-c
 margin-left: 0.5rem; font-weight: 400; font-size: 0.9em;"></span>
                     </button>
                     <button id="generateBtn" type="button" class="btn btn-primary" style="display: none;">
+                      <span style="background: white; color: var(--primary-color); width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; margin-right: 0.4rem;">3</span>
                       <span class="btn-text">プレゼンテーションを生成</span>
                       <span class="btn-timer" style="display: none;
 margin-left: 0.5rem; font-weight: 400; font-size: 0.9em;"></span>
@@ -1149,7 +1296,13 @@ margin-left: 0.5rem; font-weight: 400; font-size: 0.9em;"></span>
             </div>
           </div> <div style="display: flex; flex-direction: column;">
             <div class="card settings-section">
-              <h2 class="card-header">オプション設定</h2>
+              <h2 class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="material-icons-outlined" style="font-size: 1.2rem; color: var(--text-secondary);">tune</span>
+                  オプション設定
+                </span>
+                <span style="font-size: 0.75rem; font-weight: 500; color: var(--text-light); background: var(--bg-body); padding: 0.25rem 0.6rem; border-radius: 9999px;">任意</span>
+              </h2>
               <div class="card-body">
                 <div class="preset-management">
                   <div class="preset-controls">
@@ -6760,10 +6913,105 @@ ${VALID_SLIDE_TYPES.join(', ')}
           }
           SlideEditor.enterEditorMode();
         }
+        // ステップインジケーターを更新（JSONが有効ならステップ3へ）
+        if (typeof StepIndicator !== 'undefined') {
+          StepIndicator.completeStep(2);
+        }
       } catch (validationError) {
          showJsonErrorModal('JSON検証エラー: ' + validationError.message);
       }
     }
+
+    // ===== ステップインジケーター制御 =====
+    const StepIndicator = (function() {
+      let currentStep = 1;
+      
+      function updateUI() {
+        for (let i = 1; i <= 3; i++) {
+          const stepEl = $('step' + i);
+          const connectorEl = $('connector' + (i - 1));
+          if (!stepEl) continue;
+          
+          stepEl.classList.remove('active', 'completed');
+          if (i < currentStep) {
+            stepEl.classList.add('completed');
+          } else if (i === currentStep) {
+            stepEl.classList.add('active');
+          }
+          
+          if (connectorEl) {
+            connectorEl.classList.toggle('completed', i <= currentStep);
+          }
+        }
+      }
+      
+      function setStep(step) {
+        if (step >= 1 && step <= 3) {
+          currentStep = step;
+          updateUI();
+        }
+      }
+      
+      function getStep() {
+        return currentStep;
+      }
+      
+      function completeStep(step) {
+        if (step >= currentStep) {
+          currentStep = Math.min(step + 1, 3);
+          updateUI();
+        }
+      }
+      
+      function init() {
+        // ステップ1クリック → Geminiボタンにフォーカス
+        const step1 = $('step1');
+        if (step1) {
+          step1.addEventListener('click', function() {
+            setStep(1);
+            const geminiCard = $('geminiCard');
+            if (geminiCard) {
+              geminiCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              geminiCard.style.boxShadow = '0 0 0 3px var(--primary-color)';
+              setTimeout(() => { geminiCard.style.boxShadow = ''; }, 1500);
+            }
+          });
+        }
+        
+        // ステップ2クリック → 入力エリアにフォーカス
+        const step2 = $('step2');
+        if (step2) {
+          step2.addEventListener('click', function() {
+            setStep(2);
+            const inputCard = $('inputCard');
+            const textarea = $('slideDataInput');
+            if (inputCard) {
+              inputCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              inputCard.style.boxShadow = '0 0 0 3px var(--primary-color)';
+              setTimeout(() => { inputCard.style.boxShadow = ''; }, 1500);
+            }
+            if (textarea) {
+              setTimeout(() => textarea.focus(), 300);
+            }
+          });
+        }
+        
+        updateUI();
+      }
+      
+      return { init, setStep, getStep, completeStep, updateUI };
+    })();
+
+    // Geminiボタンクリック時にステップ2へ
+    (function() {
+      const geminiBtn = $('geminiGemButton');
+      if (geminiBtn) {
+        geminiBtn.addEventListener('click', function() {
+          StepIndicator.completeStep(1);
+        });
+      }
+    })();
+
     function updateGradientPreview() {
       const startColor = $('gradientStartText').value, endColor = $('gradientEndText').value, preview = $('gradientPreview');
       if (preview) { preview.style.background = `linear-gradient(135deg, ${startColor}, ${endColor})`; }
@@ -6778,6 +7026,10 @@ ${VALID_SLIDE_TYPES.join(', ')}
     }
     window.addEventListener('load', function() {
         adjustTextAreaHeight();
+        // ステップインジケーター初期化
+        if (typeof StepIndicator !== 'undefined') {
+          StepIndicator.init();
+        }
     });
     document.addEventListener('DOMContentLoaded', function() {
     // 
